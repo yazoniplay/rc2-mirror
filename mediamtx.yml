@@ -6,10 +6,9 @@ logDestinations: [stdout]
 rtmp: yes
 rtmpAddress: :1935
 
-# Browser-compatible HLS output.
+# Browser-compatible HLS output. MediaMTX handles HLS CORS itself.
 hls: yes
 hlsAddress: :8888
-hlsAllowOrigins: ['*']
 hlsVariant: fmp4
 hlsSegmentCount: 5
 hlsSegmentDuration: 1s
