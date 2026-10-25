@@ -1,0 +1,19 @@
+logLevel: info
+logDestinations: [stdout]
+
+# RTMP is used only inside the test network. Do not expose port 1935 publicly
+# without authentication, rate limiting, and a reviewed deployment design.
+rtmp: yes
+rtmpAddress: :1935
+
+# Browser-compatible HLS output.
+hls: yes
+hlsAddress: :8888
+hlsAllowOrigins: ['*']
+hlsVariant: fmp4
+hlsSegmentCount: 5
+hlsSegmentDuration: 1s
+hlsPartDuration: 200ms
+
+paths:
+  all:
