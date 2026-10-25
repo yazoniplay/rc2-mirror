@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b100e">
+  <title>RC2 Mirror — Stream Test</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b100e;--panel:#121a16;--line:#28372f;--text:#edf5ef;--muted:#9aada0;--green:#a9f5bd}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(ellipse at 50% -15%,#203c2a 0,transparent 52%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    main{width:min(760px,100%);margin:auto;padding:clamp(18px,5vw,42px)}
+    a{color:var(--green)}
+    .top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:28px}
+    .brand{font-weight:750;letter-spacing:-.04em}.tag{font-size:12px;color:var(--green);border:1px solid #365a41;border-radius:999px;padding:5px 9px}
+    h1{font-size:clamp(32px,7vw,54px);letter-spacing:-.055em;line-height:1.02;margin:0 0 12px}
+    p{color:var(--muted);margin:0 0 20px}
+    .panel{background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--line);border-radius:20px;padding:clamp(14px,3vw,22px);margin-top:24px}
+    label{display:block;font-size:13px;font-weight:650;margin:0 0 8px}
+    .inputrow{display:flex;gap:9px}
+    input{min-width:0;flex:1;background:#080d0a;border:1px solid #34473a;border-radius:11px;color:var(--text);padding:13px;font:inherit;outline:none}
+    input:focus-visible,button:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+    button{border:0;border-radius:11px;padding:12px 16px;background:var(--green);color:#102116;font:700 14px system-ui;cursor:pointer;transition:filter .16s,transform .16s}
+    button:hover{filter:brightness(1.06)}button:active{transform:scale(.98)}
+    video{display:block;width:100%;aspect-ratio:16/9;background:#050706;border:1px solid var(--line);border-radius:14px;margin-top:16px}
+    #status{font-size:13px;margin:12px 0 0;color:var(--muted);overflow-wrap:anywhere}
+    .notice{font-size:13px;border-left:2px solid #779b80;padding-left:12px;margin-top:18px}
+    .back{display:inline-block;margin-top:22px;font-size:14px;text-decoration:none}
+    @media(max-width:520px){.inputrow{flex-direction:column}button{width:100%}.top{align-items:flex-start}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top"><div class="brand">RC2 <span style="color:var(--green)">Mirror</span></div><span class="tag">TECHNICAL TEST</span></div>
+    <h1>Browser playback<br>test.</h1>
+    <p>This page checks whether a browser can play an HLS test stream. It does not connect to the controller yet.</p>
+    <section class="panel" aria-labelledby="player-title">
+      <h2 id="player-title" style="font-size:18px;margin:0 0 16px">HLS stream player</h2>
+      <label for="streamUrl">HLS playlist URL (.m3u8)</label>
+      <div class="inputrow">
+        <input id="streamUrl" type="url" inputmode="url" placeholder="https://your-server.example/live/index.m3u8" autocomplete="off" spellcheck="false">
+        <button id="playBtn" type="button">Test stream</button>
+      </div>
+      <video id="video" controls playsinline preload="none"></video>
+      <div id="status" role="status" aria-live="polite">Waiting for an HLS playlist URL.</div>
+      <div class="notice"><strong>Security:</strong> use a non-secret test URL here. Never paste an RTMP stream key into this page. This static test page does not authenticate viewers or make a stream private.</div>
+    </section>
+    <a class="back" href="./">← Back to RC2 Mirror</a>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+  <script>
+    const input = document.querySelector('#streamUrl');
+    const video = document.querySelector('#video');
+    const status = document.querySelector('#status');
+    const button = document.querySelector('#playBtn');
+    let hls = null;
+
+    function setStatus(message) { status.textContent = message; }
+    function stopPrevious() {
+      if (hls) { hls.destroy(); hls = null; }
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
+    button.addEventListener('click', () => {
+      const raw = input.value.trim();
+      let url;
+      try { url = new URL(raw); } catch { setStatus('Enter a valid HTTPS HLS playlist URL.'); return; }
+      if (url.protocol !== 'https:' || !url.pathname.toLowerCase().endsWith('.m3u8')) {
+        setStatus('For this test, use an HTTPS URL ending in .m3u8. RTMP URLs cannot play directly in a browser.');
+        return;
+      }
+      stopPrevious();
+      setStatus('Connecting to the HLS playlist…');
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url.href;
+        video.addEventListener('loadedmetadata', () => setStatus('Playlist loaded. Press play to test video playback.'), {once:true});
+        video.addEventListener('error', () => setStatus('Playback failed. Check the URL, server availability, and CORS settings.'), {once:true});
+        video.load();
+      } else if (window.Hls && Hls.isSupported()) {
+        hls = new Hls({enableWorker:true});
+        hls.loadSource(url.href);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => setStatus('Playlist loaded. Press play to test video playback.'));
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (data.fatal) setStatus('Playback failed. Check the URL, server availability, and CORS settings.');
+        });
+      } else {
+        setStatus('This browser does not support HLS playback.');
+      }
+    });
+    video.addEventListener('playing', () => setStatus('Playing. Browser playback test passed.'));
+    video.addEventListener('waiting', () => setStatus('Buffering…'));
+    video.addEventListener('pause', () => { if (video.currentTime > 0 && !video.ended) setStatus('Paused.'); });
+  </script>
+</body>
+</html>
