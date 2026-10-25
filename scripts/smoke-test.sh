@@ -30,6 +30,7 @@ fi
 
 case "$SEGMENT" in
   http://*|https://*) SEGMENT_URL="$SEGMENT" ;;
+  /*) SEGMENT_URL="$BASE_URL$SEGMENT" ;;
   *) SEGMENT_URL="$BASE_URL/demo/$SEGMENT" ;;
 esac
 
