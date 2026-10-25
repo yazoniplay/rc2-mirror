@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090c0b"><meta name="description" content="A private viewing workspace concept for DJI RC 2 live video.">
+<title>RC2 Mirror — Private flight view</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="#"><span class="brand-icon">⌁</span> RC2<span class="brand-muted">MIRROR</span></a><div class="top-status"><i></i> PRIVATE VIEWER <span>EARLY CONCEPT</span></div></header>
+<main class="shell">
+<section class="intro"><div class="eyebrow">YOUR FLIGHT. YOUR SCREEN.</div><h1>Your flight view,<br><span>on your iPhone.</span></h1><p>A private viewing space concept for your DJI RC 2. No public audience. No social livestream.</p><div class="notice"><b>ⓘ</b><span><strong>Connection research in progress.</strong> This prototype does not yet connect to a DJI controller.</span></div></section>
+<section class="viewer">
+<div class="viewer-head"><div class="room-label"><i></i><div><strong>Private flight room</strong><small>ROOM / LOCAL PREVIEW</small></div></div><button id="copyRoom" class="copy" aria-label="Copy room label" title="Copy room label">▢</button></div>
+<div class="screen" id="screen"><div class="grid"></div><div class="hud top-left">RC2 / VIEW <span></span><b id="hudState">STANDBY</b></div><div class="hud top-right"><i></i> PRIVATE</div><div class="screen-center"><div class="drone">⌘</div><h2 id="screenTitle">Ready when you are.</h2><p id="screenSub">Live controller feed is not connected</p><button id="preview"><span>▶</span> Preview interface</button></div><div class="hud bottom-left">⌖ <span id="hudFeed">FEED NOT CONNECTED</span></div><div class="hud bottom-right">--:--:--</div></div>
+<div class="viewer-foot"><div class="connection"><i id="connectionDot"></i><div><strong id="connectionTitle">Waiting for video source</strong><small id="connectionSub">No controller feed detected</small></div></div><div class="source">SOURCE <b id="sourceType">NONE</b></div></div>
+</section>
+<section class="setup"><div class="section-head"><div><div class="eyebrow">01 / SETUP</div><h2>Prepare your private view</h2></div><span>3 STEPS</span></div><div class="steps">
+<article><div class="step-top"><span>01</span><div class="step-icon">▤</div></div><h3>Choose a feed source</h3><p>The RC 2 needs a supported way to send video to a viewer. The capture method is still being verified.</p><label>UNDER RESEARCH</label></article>
+<article><div class="step-top"><span>02</span><div class="step-icon">▷</div></div><h3>Connect the live feed</h3><p>A future version will connect a supported video stream. This page cannot receive RTMP directly in a browser.</p><label>NOT AVAILABLE YET</label></article>
+<article><div class="step-top"><span>03</span><div class="step-icon">♙</div></div><h3>Keep it private</h3><p>Real privacy needs server-side access controls—not just a hidden link or a PIN stored in the webpage.</p><label class="planned">PLANNED</label></article>
+</div></section>
+<section class="research"><div class="research-icon">↗</div><div><strong>First milestone: prove the video path.</strong><p>DJI documents RTMP livestreaming on supported RC 2 setups, but that is not the same as mirroring the entire controller interface.</p></div><a href="https://repair.dji.com/help/content?customId=en-us03400006727&documentType=artical&lang=en&paperDocType=paper&re=US&spaceId=34" target="_blank" rel="noreferrer">DJI's guide ↗</a></section>
+<footer><span>RC2 MIRROR <i>/ CONCEPT BUILD 0.1</i></span><span>Private viewing concept · Not connected to DJI</span></footer>
+</main><div id="toast" role="status" aria-live="polite"></div><script src="app.js"></script>
+</body></html>
