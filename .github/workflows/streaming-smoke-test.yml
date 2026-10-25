@@ -1,0 +1,32 @@
+name: Streaming pipeline smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rtmp-to-hls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Start MediaMTX and synthetic camera feed
+        run: docker compose up -d
+
+      - name: Verify HLS playlist and media segment
+        run: sh scripts/smoke-test.sh
+
+      - name: Show service logs if the test fails
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Stop test services
+        if: always()
+        run: docker compose down -v
