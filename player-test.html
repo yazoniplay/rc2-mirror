@@ -42,6 +42,7 @@
         <input id="streamUrl" type="url" inputmode="url" placeholder="https://your-server.example/live/index.m3u8" autocomplete="off" spellcheck="false">
         <button id="playBtn" type="button">Test stream</button>
       </div>
+      <button id="sampleBtn" type="button" style="margin-top:10px;background:#26372c;color:var(--text);border:1px solid #405745">Load public sample video</button>
       <video id="video" controls playsinline preload="none"></video>
       <div id="status" role="status" aria-live="polite">Waiting for an HLS playlist URL.</div>
       <div class="notice"><strong>Security:</strong> use a non-secret test URL here. Never paste an RTMP stream key into this page. This static test page does not authenticate viewers or make a stream private.</div>
@@ -63,12 +64,17 @@
       video.removeAttribute('src');
       video.load();
     }
+    document.querySelector('#sampleBtn').addEventListener('click', () => {
+      input.value = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+      button.click();
+    });
     button.addEventListener('click', () => {
       const raw = input.value.trim();
       let url;
-      try { url = new URL(raw); } catch { setStatus('Enter a valid HTTPS HLS playlist URL.'); return; }
-      if (url.protocol !== 'https:' || !url.pathname.toLowerCase().endsWith('.m3u8')) {
-        setStatus('For this test, use an HTTPS URL ending in .m3u8. RTMP URLs cannot play directly in a browser.');
+      try { url = new URL(raw); } catch { setStatus('Enter a valid HLS playlist URL.'); return; }
+      const localTest = url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname);
+      if (!(url.protocol === 'https:' || localTest) || !url.pathname.toLowerCase().endsWith('.m3u8')) {
+        setStatus('Use an HTTPS HLS URL, or HTTP localhost for the local Docker test. RTMP URLs cannot play directly in a browser.');
         return;
       }
       stopPrevious();
