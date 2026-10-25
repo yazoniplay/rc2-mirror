@@ -1,0 +1,54 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.12.3
+    container_name: rc2-mirror-mediamtx
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1935:1935"
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8888/ || exit 1"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  test-publisher:
+    image: jrottenberg/ffmpeg:7.1-alpine
+    container_name: rc2-mirror-test-publisher
+    depends_on:
+      mediamtx:
+        condition: service_started
+    restart: unless-stopped
+    command:
+      - -hide_banner
+      - -loglevel
+      - warning
+      - -re
+      - -f
+      - lavfi
+      - -i
+      - testsrc2=size=1280x720:rate=25
+      - -re
+      - -f
+      - lavfi
+      - -i
+      - sine=frequency=880:sample_rate=44100
+      - -c:v
+      - libx264
+      - -preset
+      - ultrafast
+      - -tune
+      - zerolatency
+      - -pix_fmt
+      - yuv420p
+      - -g
+      - "25"
+      - -c:a
+      - aac
+      - -b:a
+      - 96k
+      - -f
+      - flv
+      - rtmp://mediamtx:1935/demo
